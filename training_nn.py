@@ -22,16 +22,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 path_data = 'data/'
 path_submission = 'submission/'
 
-features = [
-  'temp_diff',
-  'common_auth',
-  'same_journal',
-  'cosines',
-  'overlap_title',
-  'avg_degrees'
-]
-
-nb_features = len(features) # number of features
+#nb_features = len(features) # number of features
 stpwd_thd = 10 # number of most frequent words to consider as stopwords
 do_static = False # non static CNN
 nb_filters = 100 # number of filters
@@ -68,7 +59,7 @@ print('\nTraining data loaded:', training.shape)
 # load labels #
 ###############
 
-labels = training[:, 2].astype(int) # get the labels
+labels = np.array(training[:, 2]) # get the labels
 
 print('\nLabels loaded:', labels.shape)
 
@@ -96,6 +87,8 @@ print('\nTesting features loaded:', testing_features.shape)
 # defining CNN #
 ################
 
+nb_features = training_features.shape[1]
+
 print('\nDefining CNN...')
 
 my_input = Input(shape=(nb_features,))
@@ -104,7 +97,7 @@ my_input = Input(shape=(nb_features,))
 embedding = Embedding(
   input_dim = nb_features+1,
   output_dim = 20,
-  trainable = not do_static,
+  trainable = do_static,
   ) (my_input)
 
 embedding_dropped = Dropout(drop_rate)(embedding) # apply dropout

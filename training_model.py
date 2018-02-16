@@ -153,16 +153,82 @@ print('After removal, graph has %d multiple edges' % len(_multiple_edges))
 
 
 #################
-# find clusters #
+# find pagerank #
 #################
+
 start = time.time()
 
-dendogram = g.community_fastgreedy()
+pg = g.pagerank()
 
 end = time.time()
-print('Finding commnunity by fast greedy takes %.4fs' % (end-start))
+print('Finding page rank of all graph takes %.4fs' % (end-start))
 
-clusters = dendogram.as_clustering()
+v_pg = zip(nodes, pg)
+
+with open(path_data + 'pagerank_feature.csv', 'wb') as f:
+    csv_out = csv.writer(f)
+    csv_out.writerow(['name', 'pagerank'])
+    for row in v_pg:
+        csv_out.writerow(row)
+
+# count = 1
+# result = ''
+# for v in g.vs:
+# 	start = time.time()
+
+# 	pg = g.pagerank(v)
+# 	result += v['name'] + ' : ' + str(pg) + '\n'
+	
+# 	end = time.time()
+	
+# 	print('Finding page rank of %d-th node takes %.4fs, pg = %.4f' % (count, end-start, pg))
+
+# 	count += 1
+
+# with open(path_data + 'pagerank_info.txt', 'wb') as f:
+# 	f.write(result)
+
+#################
+# find clusters #
+#################
+# start = time.time()
+
+# dendogram = g.community_fastgreedy()
+
+# end = time.time()
+# print('Finding commnunity by fast greedy takes %.4fs' % (end-start))
+
+# clusters_g = dendogram.as_clustering()
+# subg = clusters_g.subgraphs()
+
+# count = 1
+# result = ''
+# for sg in subg:
+# 	print('Subgraph %d has %d nodes' % (count, len(sg.vs)))
+# 	result += 'Subgraph ' + str(count) + ' has ' + str(len(sg.vs)) + ' nodes\n'
+# 	count += 1
+
+# with open(path_data + 'subgraphs_info.txt', 'wb') as f:
+#     f.write(result)
+
+####################################
+# compute betweennees by community #
+####################################
+
+# sg = subg[3]
+
+# print('Starting to compute betweenness in subgraph of %d nodes' % len(sg.vs))
+# count = 1
+
+# for v in sg.vs:
+# 	start = time.time()
+
+# 	if sg.degree(v) >= 2:
+# 		btw = sg.betweenness(v, cutoff=5)
+
+# 	end = time.time()
+# 	print('Computing betweenness of %d-th node takes %.4fs' % (count, end-start))
+# 	count += 1
 
 #####################
 # compute closeness #

@@ -17,8 +17,7 @@ import keras
 from keras import backend as K
 from keras.datasets import mnist
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv1D, MaxPooling1D
+from keras.layers import Dense, Dropout, Flatten, LeakyReLU, Conv1D, MaxPooling1D
 from keras import activations
 
 end = time.time()
@@ -68,7 +67,7 @@ features = np.genfromtxt(path_data + 'training_features.csv', delimiter=',',skip
 training = np.genfromtxt(path_data + 'training_set.txt', dtype=str) # to get the label only
 labels = training[:, 2]
 
-x_train, x_test, y_train, y_test = ms.train_test_split(features, labels, test_size=0.25)
+x_train, x_test, y_train, y_test = ms.train_test_split(features, labels, test_size=0.35)
 
 input_shape = (x_train.shape[1], 1) # nb of features
 
@@ -108,14 +107,43 @@ model_nn = Sequential()
 
 model_nn.add(Flatten(input_shape=input_shape))
 
-model_nn.add(Dense(30, activation='relu'))
-model_nn.add(Dense(40, activation='relu'))
-model_nn.add(Dense(50, activation='relu'))
-model_nn.add(Dense(60, activation='relu'))  
-model_nn.add(Dense(50, activation='relu'))
-model_nn.add(Dense(40, activation='relu'))
-model_nn.add(Dense(30, activation='relu'))
-model_nn.add(Dense(20, activation='relu'))
+# use with Leaky Relu
+model_nn.add(Dense(30, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(0.25))
+
+model_nn.add(Dense(40, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(0.25))
+
+model_nn.add(Dense(50, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(0.25))
+model_nn.add(Dropout(rate=0.25))
+
+model_nn.add(Dense(60, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(0.25))
+
+model_nn.add(Dense(50, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(0.25))
+
+model_nn.add(Dense(40, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(0.25))
+
+model_nn.add(Dense(30, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(0.25))
+model_nn.add(Dropout(rate=0.25))
+
+model_nn.add(Dense(20, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(0.25))
+
+
+## used with ReLU
+# model_nn.add(Dense(30, activation='relu'))
+# model_nn.add(Dense(40, activation='relu'))
+# model_nn.add(Dense(50, activation='relu'))
+# model_nn.add(Dense(60, activation='relu'))  
+# model_nn.add(Dense(50, activation='relu'))
+# model_nn.add(Dense(40, activation='relu'))
+# model_nn.add(Dense(30, activation='relu'))
+# model_nn.add(Dense(20, activation='relu'))
 
 model_nn.add(Dense(num_classes, activation='softmax'))
 # ====== FF-NN ====== #
@@ -162,4 +190,4 @@ history = model_nn.fit(x_train, y_train,
 # Predict
 pred = model_nn.predict(x_pred, verbose=1)
 
-write_submission('submission_ffnn_01.csv', pred)
+write_submission('submission_ffnn_02.csv', pred)

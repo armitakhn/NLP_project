@@ -61,13 +61,17 @@ path_submission = 'submission/'
 
 # Number of classes: binary --> YES/NO if there is an edge
 num_classes = 2
+to_remove = [2, 6, 8] # indexes of features to remove
 
 # load training features (training data)
-features = np.genfromtxt(path_data + 'training_features.csv', delimiter=',',skip_header=1)
+orig_training_features = np.genfromtxt(path_data + 'training_features.csv', delimiter=',',skip_header=1)
+training_features = np.delete(orig_training_features, to_remove, 1)
+
+# get the labels
 training = np.genfromtxt(path_data + 'training_set.txt', dtype=str) # to get the label only
 labels = training[:, 2]
 
-x_train, x_test, y_train, y_test = ms.train_test_split(features, labels, test_size=0.40)
+x_train, x_test, y_train, y_test = ms.train_test_split(training_features, labels, test_size=0.36)
 
 input_shape = (x_train.shape[1], 1) # nb of features
 nb_features = x_train.shape[1]
@@ -79,13 +83,14 @@ y_test = keras.utils.to_categorical(y_test, num_classes)
 x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], 1)
 x_test = x_test.reshape(x_test.shape[0], x_test.shape[1], 1)
 
-x_train = x_train.astype('float32')
-x_test = x_test.astype('float32')
+x_train = x_train.astype('float64')
+x_test = x_test.astype('float64')
 
 # ====== loading features for prediction ====== #
-x_pred = np.genfromtxt(path_data + 'testing_features.csv', delimiter=',',skip_header=1)
+orig_testing_features = np.genfromtxt(path_data + 'testing_features.csv', delimiter=',',skip_header=1)
+x_pred = np.delete(orig_testing_features, to_remove, 1)
 x_pred = x_pred.reshape(x_pred.shape[0], x_pred.shape[1], 1)
-x_pred = x_pred.astype('float32')
+x_pred = x_pred.astype('float64')
 
 print('x_train shape:', x_train.shape)
 print('y_train shape:', y_train.shape)
@@ -160,7 +165,7 @@ model_nn.compile(loss=keras.losses.binary_crossentropy,
 model_nn.summary()
 
 
-batch_size = 32
+batch_size = 64
 epochs = 40
 
 early_stopping = keras.callbacks.EarlyStopping(monitor='val_acc', mode='max', patience=1)
@@ -177,4 +182,4 @@ history = model_nn.fit(x_train, y_train,
 # Predict
 pred = model_nn.predict(x_pred, verbose=1)
 
-write_submission('submission_ffnn_05.csv', pred)
+write_submission('submission_ffnn_07.csv', pred)

@@ -67,9 +67,10 @@ features = np.genfromtxt(path_data + 'training_features.csv', delimiter=',',skip
 training = np.genfromtxt(path_data + 'training_set.txt', dtype=str) # to get the label only
 labels = training[:, 2]
 
-x_train, x_test, y_train, y_test = ms.train_test_split(features, labels, test_size=0.35)
+x_train, x_test, y_train, y_test = ms.train_test_split(features, labels, test_size=0.40)
 
 input_shape = (x_train.shape[1], 1) # nb of features
+nb_features = x_train.shape[1]
 
 # load training & testing labels
 y_train = keras.utils.to_categorical(y_train, num_classes)
@@ -101,6 +102,7 @@ print('loading data takes %.4fs' % (end-start))
 ######################################
 start = time.time()
 
+alpha = 0.2 # parameter for RELU/LeakyRELU (set to 0.0 for normal ReLU)
  
 # ====== FF-NN ====== #
 model_nn = Sequential()
@@ -108,42 +110,27 @@ model_nn = Sequential()
 model_nn.add(Flatten(input_shape=input_shape))
 
 # use with Leaky Relu
-model_nn.add(Dense(30, kernel_initializer='lecun_uniform'))
-model_nn.add(LeakyReLU(0.25))
+model_nn.add(Dense(nb_features*3, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(alpha))
 
-model_nn.add(Dense(40, kernel_initializer='lecun_uniform'))
-model_nn.add(LeakyReLU(0.25))
-
-model_nn.add(Dense(50, kernel_initializer='lecun_uniform'))
-model_nn.add(LeakyReLU(0.25))
+model_nn.add(Dense(nb_features*4, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(alpha))
 model_nn.add(Dropout(rate=0.25))
 
-model_nn.add(Dense(60, kernel_initializer='lecun_uniform'))
-model_nn.add(LeakyReLU(0.25))
+# model_nn.add(Dense(nb_features*5, kernel_initializer='lecun_uniform'))
+# model_nn.add(LeakyReLU(alpha))
+# model_nn.add(Dropout(rate=0.25))
 
-model_nn.add(Dense(50, kernel_initializer='lecun_uniform'))
-model_nn.add(LeakyReLU(0.25))
+# model_nn.add(Dense(nb_features*6, kernel_initializer='lecun_uniform'))
+# model_nn.add(LeakyReLU(alpha))
 
-model_nn.add(Dense(40, kernel_initializer='lecun_uniform'))
-model_nn.add(LeakyReLU(0.25))
+model_nn.add(Dense(nb_features*5, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(alpha))
 
-model_nn.add(Dense(30, kernel_initializer='lecun_uniform'))
-model_nn.add(LeakyReLU(0.25))
+model_nn.add(Dense(nb_features*3, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(alpha))
 model_nn.add(Dropout(rate=0.25))
 
-model_nn.add(Dense(20, kernel_initializer='lecun_uniform'))
-model_nn.add(LeakyReLU(0.25))
-
-
-## used with ReLU
-# model_nn.add(Dense(30, activation='relu'))
-# model_nn.add(Dense(40, activation='relu'))
-# model_nn.add(Dense(50, activation='relu'))
-# model_nn.add(Dense(60, activation='relu'))  
-# model_nn.add(Dense(50, activation='relu'))
-# model_nn.add(Dense(40, activation='relu'))
-# model_nn.add(Dense(30, activation='relu'))
-# model_nn.add(Dense(20, activation='relu'))
 
 model_nn.add(Dense(num_classes, activation='softmax'))
 # ====== FF-NN ====== #
@@ -176,7 +163,7 @@ model_nn.summary()
 batch_size = 32
 epochs = 40
 
-early_stopping = keras.callbacks.EarlyStopping(monitor='val_acc', mode='max', patience=2)
+early_stopping = keras.callbacks.EarlyStopping(monitor='val_acc', mode='max', patience=1)
 
 # Run the train
 history = model_nn.fit(x_train, y_train,
@@ -190,4 +177,4 @@ history = model_nn.fit(x_train, y_train,
 # Predict
 pred = model_nn.predict(x_pred, verbose=1)
 
-write_submission('submission_ffnn_02.csv', pred)
+write_submission('submission_ffnn_05.csv', pred)

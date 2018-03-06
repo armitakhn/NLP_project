@@ -15,7 +15,6 @@ import csv
 import tensorflow
 import keras
 from keras import backend as K
-from keras.datasets import mnist
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, LeakyReLU, Conv1D, MaxPooling1D
 from keras import activations
@@ -61,7 +60,7 @@ path_submission = 'submission/'
 
 # Number of classes: binary --> YES/NO if there is an edge
 num_classes = 2
-to_remove = [2, 6, 8] # indexes of features to remove
+to_remove = [12, 13] # indexes of features to remove
 
 # load training features (training data)
 orig_training_features = np.genfromtxt(path_data + 'training_features.csv', delimiter=',',skip_header=1)
@@ -71,7 +70,7 @@ training_features = np.delete(orig_training_features, to_remove, 1)
 training = np.genfromtxt(path_data + 'training_set.txt', dtype=str) # to get the label only
 labels = training[:, 2]
 
-x_train, x_test, y_train, y_test = ms.train_test_split(training_features, labels, test_size=0.36)
+x_train, x_test, y_train, y_test = ms.train_test_split(training_features, labels, test_size=0.30)
 
 input_shape = (x_train.shape[1], 1) # nb of features
 nb_features = x_train.shape[1]
@@ -122,9 +121,8 @@ model_nn.add(Dense(nb_features*4, kernel_initializer='lecun_uniform'))
 model_nn.add(LeakyReLU(alpha))
 model_nn.add(Dropout(rate=0.25))
 
-# model_nn.add(Dense(nb_features*5, kernel_initializer='lecun_uniform'))
-# model_nn.add(LeakyReLU(alpha))
-# model_nn.add(Dropout(rate=0.25))
+model_nn.add(Dense(nb_features*5, kernel_initializer='lecun_uniform'))
+model_nn.add(LeakyReLU(alpha))
 
 # model_nn.add(Dense(nb_features*6, kernel_initializer='lecun_uniform'))
 # model_nn.add(LeakyReLU(alpha))
@@ -182,4 +180,4 @@ history = model_nn.fit(x_train, y_train,
 # Predict
 pred = model_nn.predict(x_pred, verbose=1)
 
-write_submission('submission_ffnn_07.csv', pred)
+write_submission('submission_ffnn_08.csv', pred)

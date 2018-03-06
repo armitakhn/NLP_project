@@ -22,7 +22,14 @@ print('Loading libraries takes %.4f s' % (end-start))
 start = time.time()
 
 path_data = 'data/'
-training_features = np.genfromtxt(path_data + 'training_features.csv', delimiter=',',skip_header=1)
+
+# get the features
+orig_training_features = np.genfromtxt(path_data + 'training_features.csv', delimiter=',',skip_header=1)
+training_features = np.nan_to_num(orig_training_features)
+
+# get the labels
+training = np.genfromtxt(path_data + 'training_set.txt', dtype=str) # to get the label only
+labels = training[:, 2]
 
 end = time.time()
 print('Loading features takes %.4f s' % (end-start))
@@ -36,29 +43,21 @@ start = time.time()
 from sklearn.decomposition import PCA
 
 my_pca = PCA(n_components=2) # dimensionality reduction
-ft_pca = my_pca.fit_transform(training_features[0:1000])
+ft_pca = my_pca.fit_transform(training_features)
 
 end = time.time()
 print('PCA reduction takes %.4fs' % (end-start))
 
+idx_neg = (labels == '0')
+idx_pos = (labels == '1')
+neg_class = ft_pca[idx_neg]
+pos_class = ft_pca[idx_pos]
 
-####################################
-# ====== Plotting with TSNE ====== #
-####################################
-start = time.time()
+x1_neg = neg_class[:, 0]
+x2_neg = neg_class[:, 1]
+x1_pos = pos_class[:, 0]
+x2_pos = pos_class[:, 1]
 
-from sklearn.manifold import TSNE
-
-my_tsne = TSNE(n_components=2)
-ft_tsne = my_tsne.fit_transform(ft_pca)
-
-# plotting real pretty stuffs
-fig, ax = plt.subplots()
-ax.scatter(ft_tsne[:,0], ft_tsne[:,1],s=3)
-fig.suptitle('t-SNE visualization of word embeddings',fontsize=20)
-fig.set_size_inches(11,7)
-fig.show()
+plt.scatter(x1_neg, x2_neg, color='b')
+plt.scatter(x1_pos, x2_pos, color='r')
 plt.show()
-
-end = time.time()
-print('TSNE processing takes %.4fs' % (end-start))
